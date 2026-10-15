@@ -1,0 +1,52 @@
+{
+  "name": "dsh-opencode-doctor",
+  "version": "0.1.0",
+  "description": "Pre-probed OpenCode Go / Zen model routes for DeepSeek Harness — ships an availability-annotated catalog so you can see which models actually work (region blocks, empty balance, client-only free tiers) before you pick one.",
+  "keywords": [
+    "dsh",
+    "dsh-plugin",
+    "deepseek-harness",
+    "opencode",
+    "opencode-go",
+    "opencode-zen",
+    "pi-ai",
+    "model-provider"
+  ],
+  "license": "MIT",
+  "author": "fffcodefox",
+  "type": "module",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/fffcodefox/dsh-opencode-doctor.git"
+  },
+  "homepage": "https://github.com/fffcodefox/dsh-opencode-doctor#readme",
+  "bugs": {
+    "url": "https://github.com/fffcodefox/dsh-opencode-doctor/issues"
+  },
+  "engines": {
+    "node": ">=20.18"
+  },
+  "bin": {
+    "dsh-opencode-doctor": "./bin/doctor.mjs"
+  },
+  "files": [
+    "bin",
+    "lib",
+    "cordis.patch.yml",
+    "models.catalog.json",
+    "README.md",
+    "README.en.md",
+    "LICENSE"
+  ],
+  "scripts": {
+    "render": "node bin/doctor.mjs render",
+    "list": "node bin/doctor.mjs list",
+    "check": "node bin/doctor.mjs check",
+    "probe": "node bin/doctor.mjs probe"
+  },
+  "dsh": {
+    "bundle": {
+      "patch": "./cordis.patch.yml"
+    }
+  }
+}
