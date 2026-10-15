@@ -21,11 +21,22 @@ Bonus: the picker has fuzzy search, so typing `需充值` filters the whole grou
 
 ## Install
 
+Straight from GitHub (**recommended — no npm required**):
+
+```bash
+dsh plugin --profile web add github:fffcodefox/dsh-opencode-doctor
+```
+
+Once the package is on npm you can also install by name:
+
 ```bash
 dsh plugin --profile web add dsh-opencode-doctor
 ```
 
 Restart dsh, then look under **Settings → Models**.
+
+> This is a **config-only** plugin: all of its behaviour lives in `cordis.patch.yml` and it runs no runtime code (`apply` in `lib/index.mjs` is empty, present only to satisfy the plugin convention). That is why it cannot destabilise the DSH host.
+
 
 ## Routes registered
 

@@ -21,11 +21,22 @@ Cat Jam Free（限官方客户端）
 
 ## 安装
 
+直接从 GitHub 装（**推荐，不依赖 npm**）：
+
+```bash
+dsh plugin --profile web add github:fffcodefox/dsh-opencode-doctor
+```
+
+等发布到 npm 之后，也可以用包名装：
+
 ```bash
 dsh plugin --profile web add dsh-opencode-doctor
 ```
 
 装完**重启 dsh**，进 **设置 → 模型** 就能看到新路由。
+
+> 这个插件是**纯配置型**：它的全部行为都在 `cordis.patch.yml` 里，不跑任何运行时代码（`lib/index.mjs` 的 `apply` 是空的，只为符合插件规范）。所以它不会影响 DSH 宿主的稳定性。
+
 
 ## 注册了什么
 
