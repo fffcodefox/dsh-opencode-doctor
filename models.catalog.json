@@ -860,7 +860,7 @@
         {
           "id": "gemini-3.1-pro",
           "name": "Gemini 3.1 Pro Preview",
-          "note": null,
+          "note": "协议不兼容",
           "code": "protocol",
           "contextWindow": 1048576,
           "maxTokens": 65536,
@@ -875,7 +875,7 @@
         {
           "id": "gemini-3.5-flash-lite",
           "name": "Gemini 3.5 Flash Lite",
-          "note": null,
+          "note": "协议不兼容",
           "code": "protocol",
           "contextWindow": 1048576,
           "maxTokens": 65536,
@@ -890,7 +890,7 @@
         {
           "id": "gemini-3.8-flash",
           "name": "Gemini 3.8 Flash",
-          "note": null,
+          "note": "协议不兼容",
           "code": "protocol",
           "contextWindow": 1048576,
           "maxTokens": 65536,
@@ -905,7 +905,7 @@
         {
           "id": "gemini-4-argon",
           "name": "Gemini 4 Argon",
-          "note": null,
+          "note": "协议不兼容",
           "code": "protocol",
           "contextWindow": 1048576,
           "maxTokens": 65536,
@@ -1070,7 +1070,7 @@
         {
           "id": "jev-1.13",
           "name": "jev-1.13",
-          "note": null,
+          "note": "协议不兼容",
           "code": "protocol",
           "contextWindow": null,
           "maxTokens": null,

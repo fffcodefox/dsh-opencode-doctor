@@ -37,10 +37,10 @@ dsh plugin --profile web add dsh-opencode-doctor
 | `opencode-go-doctor-openai` | OpenAI 兼容 | 26 / 33 | `opencode.ai/inference/go/openai/v1` |
 | `opencode-go-doctor-responses` | OpenAI Responses | 2 / 2 | `opencode.ai/inference/go/openai/v1` |
 | `opencode-zen-doctor-anthropic` | Anthropic Messages | 7 / 7 | `opencode.ai/inference/v1/messages` |
-| `opencode-zen-doctor-openai` | OpenAI 兼容 | 13 / 35 | `opencode.ai/inference/v1` |
+| `opencode-zen-doctor-openai` | OpenAI 兼容 | 8 / 35 | `opencode.ai/inference/v1` |
 | `opencode-zen-doctor-responses` | OpenAI Responses | 4 / 4 | `opencode.ai/inference/v1` |
 
-合计 **54 个可用 / 83 个模型**。
+合计 **49 个可用 / 83 个模型**。
 
 同一个模型在不同协议下的可用性并不一致——比如 Zen 的 Claude 只认 Anthropic Messages，`grok-4.7` 只认 Responses。`probe` 会逐个协议试，把模型归到它真正能跑的那条路由上。
 
@@ -89,6 +89,7 @@ npx dsh-opencode-doctor render    # 只从 catalog 重新生成 patch（离线�
 | （限官方客户端） | 免费层模型，只能在 OpenCode 客户端里用 |
 | （地区限制） | 你所在的地区不可用 |
 | （需授权训练数据） | 需要先授权用你的数据训练 |
+| （协议不兼容） | 网关列出了它，但三种协议都跑不通（多为 Gemini 系模型） |
 | （暂不可用） | 其他失败 |
 
 没有标注 = 探测时可用。

@@ -12,7 +12,7 @@
 # Credential: refs.OPENCODE_API_KEY in .credentials.yaml (or the matching env var).
 # Re-probe and rewrite this file with:  npx dsh-opencode-doctor probe
 #
-# Probed 2026-10-15 · 54 usable / 83 total across 6 routes
+# Probed 2026-10-15 · 49 usable / 83 total across 6 routes
 # ============================================================
 - id: llm-pi-ai
   name: "@deepseek-ai/dsh-llm-pi-ai"
@@ -548,7 +548,7 @@
               medium: medium
               high: high
           - id: gemini-3.1-pro
-            name: Gemini 3.1 Pro Preview
+            name: "Gemini 3.1 Pro Preview（协议不兼容）"
             contextWindow: 1048576
             maxTokens: 65536
             reasoningEfforts:
@@ -557,7 +557,7 @@
               medium: medium
               high: high
           - id: gemini-3.5-flash-lite
-            name: Gemini 3.5 Flash Lite
+            name: "Gemini 3.5 Flash Lite（协议不兼容）"
             contextWindow: 1048576
             maxTokens: 65536
             reasoningEfforts:
@@ -566,7 +566,7 @@
               medium: medium
               high: high
           - id: gemini-3.8-flash
-            name: Gemini 3.8 Flash
+            name: "Gemini 3.8 Flash（协议不兼容）"
             contextWindow: 1048576
             maxTokens: 65536
             reasoningEfforts:
@@ -575,7 +575,7 @@
               medium: medium
               high: high
           - id: gemini-4-argon
-            name: Gemini 4 Argon
+            name: "Gemini 4 Argon（协议不兼容）"
             contextWindow: 1048576
             maxTokens: 65536
             reasoningEfforts:
@@ -674,7 +674,7 @@
               medium: medium
               high: high
           - id: jev-1.13
-            name: jev-1.13
+            name: "jev-1.13（协议不兼容）"
           - id: jev-1.13-free
             name: "jev-1.13-free（限官方客户端）"
           - id: kimi-k2.7-code

@@ -68,6 +68,7 @@ Useful flags: `--gateway <key>` to probe one gateway, `--concurrency <n>`, `--ke
 | （限官方客户端） | Free-tier model, usable only inside the OpenCode client |
 | （地区限制） | Blocked in your region |
 | （需授权训练数据） | Requires opting in to training-data use |
+| （协议不兼容） | Listed by the gateway but answers none of the three wire protocols (mostly Gemini-family) |
 | （暂不可用） | Other failure |
 
 No note = usable at probe time.
