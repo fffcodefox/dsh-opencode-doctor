@@ -102,6 +102,8 @@ you pick gpt-6-luna in DSH
 
 Upgrading the plugin overwrites that file, so the durable place is your profile patch (`~/.dsh/profiles/web/cordis.patch.yml`) with a `- id: model-proxy` row. Note that a DSH patch **replaces the whole `config` object**, so copy `origins` / `models` across too and change only `proxy`.
 
+> **Keep exactly one row.** If `dsh-model-proxy` is also listed in your profile's `dsh.profile.bundles`, its own patch inserts a second row (default 7890) — two rows sharing an id **chain** instead of overriding, so drop that name from the bundles list.
+
 ## The ★ shortlist
 
 The picker has no favourites feature, but it does fuzzy-search names — so the 10 models most people reach for first carry a ★ prefix, and **typing ★ leaves only them**:
@@ -200,6 +202,9 @@ Useful flags: `--gateway <slug>` to probe one gateway, `--concurrency <n>`, `--t
 
 **I don't have a proxy — will installing this make things worse?**
 No. When the proxy is unreachable the listed models fall back to a direct connection (`fallbackToDirect`), which is how they behaved before; the other 64 models were always direct.
+
+**I already use `dsh-model-proxy` — will they fight?**
+They will duplicate. `dsh-model-proxy`'s own bundle patch also inserts a `model-proxy` row (default `127.0.0.1:7890`, matching `grok-*` / `gpt-*-luna`). Two rows sharing that id do **not** override each other — they chain into two dispatchers, so `grok-*` first tries 7890. Remove it from your profile's `dsh.profile.bundles` list: as a dependency of this plugin it stays installed and resolvable, and the row this plugin inserts is the only live one.
 
 **Installed it but no new routes?**
 Restart dsh. The model list is assembled at boot, and hot reload does not always cover provider registration.

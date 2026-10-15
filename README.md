@@ -100,6 +100,8 @@ dsh plugin --profile web add dsh-opencode-doctor
 
 升级插件会覆盖这个文件，所以更稳的做法是在你的 profile patch（`~/.dsh/profiles/web/cordis.patch.yml`）里写一条 `- id: model-proxy`。注意 DSH 的 patch 是**整体替换** `config` 对象，所以要连 `origins` / `models` 一起抄过去，只改 `proxy` 那一行。
 
+> **只留一条。** 如果 `dsh-model-proxy` 也被单独列在你 profile 的 `dsh.profile.bundles` 里，它自带的 patch 会再插一条（默认 7890）—— 两条同 id 的行是**串联**而不是覆盖，请把那个名字从 bundles 列表里删掉。
+
 ## ★ 常用模型
 
 选择器里没有「收藏」这个功能，但名字可以模糊搜索 —— 所以把最常用的 10 个模型加了 ★ 前缀，**输入 ★ 就只剩它们**：
@@ -198,6 +200,9 @@ npx dsh-opencode-doctor render    # 只从 catalog 重新生成 patch（离线�
 
 **我没有代理，装了会不会变差？**
 不会。代理连不上时清单里的模型自动回落直连（`fallbackToDirect`），表现和你没装插件一样；其它 64 个模型本来就走直连。
+
+**我本来就在用 `dsh-model-proxy`，会打架吗？**
+会重复。`dsh-model-proxy` 自己带的 bundle patch 也会插一条 `model-proxy`（默认 `127.0.0.1:7890`，只匹配 `grok-*` / `gpt-*-luna`）。两条同 id 的行**不会互相覆盖**，而是串成两条 dispatcher —— 于是 `grok-*` 会先去敲 7890。把它从 profile 的 `dsh.profile.bundles` 列表里删掉即可：它作为本插件的依赖仍然装着、能被解析到，而插件插入的那条就是唯一生效的一条。
 
 **装完看不到新路由？**
 重启 dsh。模型列表在启动时组装，热重载不一定覆盖 provider 注册。
