@@ -190,36 +190,6 @@
           "compat": null
         },
         {
-          "id": "gpt-5.6-luna",
-          "name": "GPT-5.6 Luna",
-          "note": "地区限制",
-          "code": "region",
-          "contextWindow": 1050000,
-          "maxTokens": 128000,
-          "reasoningEfforts": [
-            "off",
-            "low",
-            "medium",
-            "high"
-          ],
-          "compat": null
-        },
-        {
-          "id": "gpt-6-luna",
-          "name": "GPT-6 Luna",
-          "note": "地区限制",
-          "code": "region",
-          "contextWindow": 1050000,
-          "maxTokens": 128000,
-          "reasoningEfforts": [
-            "off",
-            "low",
-            "medium",
-            "high"
-          ],
-          "compat": null
-        },
-        {
           "id": "hy3",
           "name": "Hy3",
           "note": null,
@@ -547,8 +517,8 @@
         {
           "id": "step-5-preview-free",
           "name": "Step 5 Preview Free",
-          "note": "暂不可用",
-          "code": "unavailable",
+          "note": null,
+          "code": "ok",
           "contextWindow": 1000000,
           "maxTokens": 65536,
           "reasoningEfforts": [
@@ -574,6 +544,34 @@
       },
       "providerCompat": null,
       "models": [
+        {
+          "id": "gpt-5.6-luna",
+          "name": "GPT-5.6 Luna",
+          "note": "地区限制",
+          "code": "region",
+          "contextWindow": 1050000,
+          "maxTokens": 128000,
+          "reasoningEfforts": [
+            "low",
+            "medium",
+            "high"
+          ],
+          "compat": null
+        },
+        {
+          "id": "gpt-6-luna",
+          "name": "GPT-6 Luna",
+          "note": "地区限制",
+          "code": "region",
+          "contextWindow": 1050000,
+          "maxTokens": 128000,
+          "reasoningEfforts": [
+            "low",
+            "medium",
+            "high"
+          ],
+          "compat": null
+        },
         {
           "id": "grok-4.6",
           "name": "Grok 4.6",
@@ -732,6 +730,25 @@
           }
         },
         {
+          "id": "claude-opus-5-5-backup",
+          "name": "claude-opus-5-5-backup",
+          "note": "暂不可用",
+          "code": "unavailable",
+          "contextWindow": null,
+          "maxTokens": null,
+          "reasoningEfforts": [
+            "off",
+            "low",
+            "medium",
+            "high",
+            "xhigh",
+            "max"
+          ],
+          "compat": {
+            "forceAdaptiveThinking": true
+          }
+        },
+        {
           "id": "claude-sonnet-5-5",
           "name": "Claude Sonnet 5.5",
           "note": null,
@@ -749,6 +766,81 @@
           "compat": {
             "forceAdaptiveThinking": true
           }
+        }
+      ]
+    },
+    {
+      "routeKey": "zen:google",
+      "gateway": "zen",
+      "protocol": "google",
+      "routeId": "opencode-zen-doctor-google",
+      "label": "OpenCode Zen · Gemini",
+      "api": "google-generative-ai",
+      "baseURL": "https://opencode.ai/inference/v1",
+      "headers": {
+        "x-opencode-session": "dsh-opencode-doctor"
+      },
+      "providerCompat": null,
+      "models": [
+        {
+          "id": "gemini-3.1-pro",
+          "name": "Gemini 3.1 Pro Preview",
+          "note": null,
+          "code": "ok",
+          "contextWindow": 1048576,
+          "maxTokens": 65536,
+          "reasoningEfforts": [
+            "off",
+            "low",
+            "medium",
+            "high"
+          ],
+          "compat": null
+        },
+        {
+          "id": "gemini-3.5-flash-lite",
+          "name": "Gemini 3.5 Flash Lite",
+          "note": null,
+          "code": "ok",
+          "contextWindow": 1048576,
+          "maxTokens": 65536,
+          "reasoningEfforts": [
+            "off",
+            "low",
+            "medium",
+            "high"
+          ],
+          "compat": null
+        },
+        {
+          "id": "gemini-3.8-flash",
+          "name": "Gemini 3.8 Flash",
+          "note": null,
+          "code": "ok",
+          "contextWindow": 1048576,
+          "maxTokens": 65536,
+          "reasoningEfforts": [
+            "off",
+            "low",
+            "medium",
+            "high"
+          ],
+          "compat": null
+        },
+        {
+          "id": "gemini-4-argon",
+          "name": "Gemini 4 Argon",
+          "note": null,
+          "code": "ok",
+          "contextWindow": 1048576,
+          "maxTokens": 65536,
+          "reasoningEfforts": [
+            "off",
+            "low",
+            "medium",
+            "high"
+          ],
+          "compat": null
         }
       ]
     },
@@ -789,21 +881,6 @@
           "code": "region",
           "contextWindow": 262144,
           "maxTokens": 131072,
-          "reasoningEfforts": [
-            "off",
-            "low",
-            "medium",
-            "high"
-          ],
-          "compat": null
-        },
-        {
-          "id": "claude-opus-5-5-backup",
-          "name": "claude-opus-5-5-backup",
-          "note": "暂不可用",
-          "code": "unavailable",
-          "contextWindow": null,
-          "maxTokens": null,
           "reasoningEfforts": [
             "off",
             "low",
@@ -858,207 +935,12 @@
           "compat": null
         },
         {
-          "id": "gemini-3.1-pro",
-          "name": "Gemini 3.1 Pro Preview",
-          "note": "协议不兼容",
-          "code": "protocol",
-          "contextWindow": 1048576,
-          "maxTokens": 65536,
-          "reasoningEfforts": [
-            "off",
-            "low",
-            "medium",
-            "high"
-          ],
-          "compat": null
-        },
-        {
-          "id": "gemini-3.5-flash-lite",
-          "name": "Gemini 3.5 Flash Lite",
-          "note": "协议不兼容",
-          "code": "protocol",
-          "contextWindow": 1048576,
-          "maxTokens": 65536,
-          "reasoningEfforts": [
-            "off",
-            "low",
-            "medium",
-            "high"
-          ],
-          "compat": null
-        },
-        {
-          "id": "gemini-3.8-flash",
-          "name": "Gemini 3.8 Flash",
-          "note": "协议不兼容",
-          "code": "protocol",
-          "contextWindow": 1048576,
-          "maxTokens": 65536,
-          "reasoningEfforts": [
-            "off",
-            "low",
-            "medium",
-            "high"
-          ],
-          "compat": null
-        },
-        {
-          "id": "gemini-4-argon",
-          "name": "Gemini 4 Argon",
-          "note": "协议不兼容",
-          "code": "protocol",
-          "contextWindow": 1048576,
-          "maxTokens": 65536,
-          "reasoningEfforts": [
-            "off",
-            "low",
-            "medium",
-            "high"
-          ],
-          "compat": null
-        },
-        {
           "id": "glm-5.3",
           "name": "GLM-5.3",
           "note": null,
           "code": "ok",
           "contextWindow": 1000000,
           "maxTokens": 131072,
-          "reasoningEfforts": [
-            "off",
-            "low",
-            "medium",
-            "high"
-          ],
-          "compat": null
-        },
-        {
-          "id": "gpt-5.3-codex-spark",
-          "name": "GPT-5.3 Codex Spark",
-          "note": "地区限制",
-          "code": "region",
-          "contextWindow": 128000,
-          "maxTokens": 128000,
-          "reasoningEfforts": [
-            "off",
-            "low",
-            "medium",
-            "high"
-          ],
-          "compat": null
-        },
-        {
-          "id": "gpt-5.4-mini",
-          "name": "GPT-5.4 Mini",
-          "note": "地区限制",
-          "code": "region",
-          "contextWindow": 400000,
-          "maxTokens": 128000,
-          "reasoningEfforts": [
-            "off",
-            "low",
-            "medium",
-            "high"
-          ],
-          "compat": null
-        },
-        {
-          "id": "gpt-5.4-nano",
-          "name": "GPT-5.4 Nano",
-          "note": "地区限制",
-          "code": "region",
-          "contextWindow": 400000,
-          "maxTokens": 128000,
-          "reasoningEfforts": [
-            "off",
-            "low",
-            "medium",
-            "high"
-          ],
-          "compat": null
-        },
-        {
-          "id": "gpt-5.5",
-          "name": "GPT-5.5",
-          "note": "地区限制",
-          "code": "region",
-          "contextWindow": 1050000,
-          "maxTokens": 128000,
-          "reasoningEfforts": [
-            "off",
-            "low",
-            "medium",
-            "high"
-          ],
-          "compat": null
-        },
-        {
-          "id": "gpt-5.5-pro",
-          "name": "GPT-5.5 Pro",
-          "note": "地区限制",
-          "code": "region",
-          "contextWindow": 1050000,
-          "maxTokens": 128000,
-          "reasoningEfforts": [
-            "off",
-            "low",
-            "medium",
-            "high"
-          ],
-          "compat": null
-        },
-        {
-          "id": "gpt-5.6-terra",
-          "name": "GPT-5.6 Terra",
-          "note": "地区限制",
-          "code": "region",
-          "contextWindow": 1050000,
-          "maxTokens": 128000,
-          "reasoningEfforts": [
-            "off",
-            "low",
-            "medium",
-            "high"
-          ],
-          "compat": null
-        },
-        {
-          "id": "gpt-6-astra",
-          "name": "GPT-6 Astra",
-          "note": "地区限制",
-          "code": "region",
-          "contextWindow": 1050000,
-          "maxTokens": 128000,
-          "reasoningEfforts": [
-            "off",
-            "low",
-            "medium",
-            "high"
-          ],
-          "compat": null
-        },
-        {
-          "id": "gpt-6-luna",
-          "name": "GPT-6 Luna",
-          "note": "地区限制",
-          "code": "region",
-          "contextWindow": 1050000,
-          "maxTokens": 128000,
-          "reasoningEfforts": [
-            "off",
-            "low",
-            "medium",
-            "high"
-          ],
-          "compat": null
-        },
-        {
-          "id": "gpt-6.1-sol",
-          "name": "GPT-6.1 Sol",
-          "note": "地区限制",
-          "code": "region",
-          "contextWindow": 1050000,
-          "maxTokens": 128000,
           "reasoningEfforts": [
             "off",
             "low",
@@ -1223,6 +1105,21 @@
           "compat": null
         },
         {
+          "id": "nemotron-3.5-super-vl-free",
+          "name": "Nemotron 3.5 Super VL Free",
+          "note": "限官方客户端",
+          "code": "freetier",
+          "contextWindow": 1048576,
+          "maxTokens": 131072,
+          "reasoningEfforts": [
+            "off",
+            "low",
+            "medium",
+            "high"
+          ],
+          "compat": null
+        },
+        {
           "id": "qwen3.6-plus",
           "name": "Qwen3.6 Plus",
           "note": null,
@@ -1303,6 +1200,132 @@
           "note": null,
           "code": "ok",
           "contextWindow": 400000,
+          "maxTokens": 128000,
+          "reasoningEfforts": [
+            "low",
+            "medium",
+            "high"
+          ],
+          "compat": null
+        },
+        {
+          "id": "gpt-5.3-codex-spark",
+          "name": "GPT-5.3 Codex Spark",
+          "note": "地区限制",
+          "code": "region",
+          "contextWindow": 128000,
+          "maxTokens": 128000,
+          "reasoningEfforts": [
+            "low",
+            "medium",
+            "high"
+          ],
+          "compat": null
+        },
+        {
+          "id": "gpt-5.4-mini",
+          "name": "GPT-5.4 Mini",
+          "note": "地区限制",
+          "code": "region",
+          "contextWindow": 400000,
+          "maxTokens": 128000,
+          "reasoningEfforts": [
+            "low",
+            "medium",
+            "high"
+          ],
+          "compat": null
+        },
+        {
+          "id": "gpt-5.4-nano",
+          "name": "GPT-5.4 Nano",
+          "note": "地区限制",
+          "code": "region",
+          "contextWindow": 400000,
+          "maxTokens": 128000,
+          "reasoningEfforts": [
+            "low",
+            "medium",
+            "high"
+          ],
+          "compat": null
+        },
+        {
+          "id": "gpt-5.5",
+          "name": "GPT-5.5",
+          "note": "地区限制",
+          "code": "region",
+          "contextWindow": 1050000,
+          "maxTokens": 128000,
+          "reasoningEfforts": [
+            "low",
+            "medium",
+            "high"
+          ],
+          "compat": null
+        },
+        {
+          "id": "gpt-5.5-pro",
+          "name": "GPT-5.5 Pro",
+          "note": "地区限制",
+          "code": "region",
+          "contextWindow": 1050000,
+          "maxTokens": 128000,
+          "reasoningEfforts": [
+            "low",
+            "medium",
+            "high"
+          ],
+          "compat": null
+        },
+        {
+          "id": "gpt-5.6-terra",
+          "name": "GPT-5.6 Terra",
+          "note": "地区限制",
+          "code": "region",
+          "contextWindow": 1050000,
+          "maxTokens": 128000,
+          "reasoningEfforts": [
+            "low",
+            "medium",
+            "high"
+          ],
+          "compat": null
+        },
+        {
+          "id": "gpt-6-astra",
+          "name": "GPT-6 Astra",
+          "note": "地区限制",
+          "code": "region",
+          "contextWindow": 1050000,
+          "maxTokens": 128000,
+          "reasoningEfforts": [
+            "low",
+            "medium",
+            "high"
+          ],
+          "compat": null
+        },
+        {
+          "id": "gpt-6-luna",
+          "name": "GPT-6 Luna",
+          "note": "地区限制",
+          "code": "region",
+          "contextWindow": 1050000,
+          "maxTokens": 128000,
+          "reasoningEfforts": [
+            "low",
+            "medium",
+            "high"
+          ],
+          "compat": null
+        },
+        {
+          "id": "gpt-6.1-sol",
+          "name": "GPT-6.1 Sol",
+          "note": "地区限制",
+          "code": "region",
+          "contextWindow": 1050000,
           "maxTokens": 128000,
           "reasoningEfforts": [
             "low",

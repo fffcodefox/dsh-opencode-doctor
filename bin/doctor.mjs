@@ -5,14 +5,30 @@
 //   render   rewrite cordis.patch.yml from models.catalog.json (no network)
 //   list     print what the shipped catalog contains
 //   check    resolve the credential and verify each gateway answers
+//   usage    show the OpenCode Go quota (used / remaining, per window)
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { parseArgs } from 'node:util';
 
 import { resolveKey, maskKey, dshHome, SEARCHED } from '../lib/keys.mjs';
-import { writePatch } from '../lib/render.mjs';
+import {
+  writePatch,
+  availabilityNote,
+  isUnreachable,
+  isPick,
+  regionModelIds,
+  unshippableRoutes,
+} from '../lib/render.mjs';
 import { probe, readCatalog, summarize, fetchModelIds, BASES, NOTES } from '../lib/probe.mjs';
+import {
+  fetchUsage,
+  formatReset,
+  WINDOW_LABELS,
+  usageBar,
+  padDisplay,
+  padStartDisplay,
+} from '../lib/usage.mjs';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const CATALOG_FILE = path.join(ROOT, 'models.catalog.json');
@@ -30,6 +46,17 @@ const C = color
   : { dim: (s) => s, bold: (s) => s, ok: (s) => s, bad: (s) => s, warn: (s) => s };
 
 const GATEWAY_KEYS = BASES.map((b) => b.key);
+const BAR_WIDTH = 20;
+
+/** What each probe verdict means for the shipped patch. */
+const NOTE_HELP = {
+  funds: 'written into the model name',
+  freetier: 'written into the model name',
+  authdata: 'written into the model name',
+  unavailable: 'written into the model name',
+  protocol: 'model dropped — no usable wire protocol',
+  region: 'recorded only; the model rides the proxy, so its name stays clean',
+};
 
 const HELP = `${C.bold('dsh-opencode-doctor')} — pre-probed OpenCode model routes for DeepSeek Harness
 
@@ -38,6 +65,7 @@ ${C.bold('Usage')}
 
 ${C.bold('Commands')}
   list                Show the shipped catalog (offline)
+  usage               Show the OpenCode Go quota — used / remaining per window
   probe               Re-probe both gateways, rewrite catalog + patch
   render              Rewrite cordis.patch.yml from the catalog (offline)
   check               Resolve the credential and ping each gateway
@@ -47,13 +75,17 @@ ${C.bold('Options')}
   --gateway <key>     probe only one gateway (${GATEWAY_KEYS.join(', ')})
   --concurrency <n>   parallel probes during \`probe\` (default 4)
   --timeout <ms>      per-request timeout (default 60000)
-  --json              machine-readable output for \`list\` / \`check\`
+  --json              machine-readable output for \`list\` / \`check\` / \`usage\`
   -h, --help          Show this help
   -v, --version       Show the version
 
-${C.bold('Availability notes written into model names')}
-${Object.entries(NOTES).map(([code, note]) => `  ${note.padEnd(8)} ${C.dim(code)}`).join('\n')}
-`;
+${C.bold('Probe verdicts')}
+${Object.entries(NOTES)
+  .map(
+    ([code, note]) =>
+      `  ${padDisplay(note, 14)} ${code.padEnd(12)} ${C.dim(NOTE_HELP[code] ?? '')}`,
+  )
+  .join('\n')}`;
 
 function version() {
   return JSON.parse(fs.readFileSync(path.join(ROOT, 'package.json'), 'utf8')).version;
@@ -73,34 +105,111 @@ function cmdList(catalog, { json }) {
     console.log(JSON.stringify(catalog, null, 2));
     return;
   }
-  const routes = (catalog.routes ?? []).filter((r) => r.models?.length);
-  const total = routes.reduce((n, r) => n + r.models.length, 0);
-  const usable = routes.reduce((n, r) => n + r.models.filter((m) => !m.note).length, 0);
+  const routes = (catalog.routes ?? [])
+    .map((route) => ({ ...route, models: (route.models ?? []).filter((m) => !isUnreachable(m)) }))
+    .filter((route) => route.models.length);
+  // Routes the patch cannot register: DSH only accepts three wire protocols from
+  // a provider config. They stay in the list for transparency but must not be
+  // counted as shipped, or the totals disagree with cordis.patch.yml.
+  const held = new Set(unshippableRoutes(catalog).map((route) => route.routeId));
+  const shipped = routes.filter((route) => !held.has(route.routeId));
+  const total = shipped.reduce((n, r) => n + r.models.length, 0);
+  const usable = shipped.reduce((n, r) => n + r.models.filter((m) => !availabilityNote(m)).length, 0);
+  const heldCount = routes
+    .filter((route) => held.has(route.routeId))
+    .reduce((n, r) => n + r.models.length, 0);
   console.log(
-    `${C.bold('dsh-opencode-doctor')} · probed ${catalog.probedAt} · ${C.ok(`${usable} usable`)} / ${total} total\n`,
+    `${C.bold('dsh-opencode-doctor')} · probed ${catalog.probedAt} · ` +
+      `${C.ok(`${usable} 可用`)} / ${total} 下发` +
+      (heldCount ? C.dim(`（另有 ${heldCount} 个因协议不受支持未下发）`) : '') +
+      '\n',
   );
+  const region = regionModelIds(catalog).length;
+  if (region) {
+    console.log(`${C.dim(`${region} 个地区受限模型已自动走代理（名字里不再标注）`)}\n`);
+  }
   for (const route of routes) {
-    const ok = route.models.filter((m) => !m.note);
+    const ok = route.models.filter((m) => !availabilityNote(m));
     const blocked = route.models.length - ok.length;
-    console.log(`${C.bold(route.label)}  ${C.dim(`route ${route.routeId} · ${route.api}`)}`);
+    console.log(
+      `${C.bold(route.label)}  ${C.dim(`route ${route.routeId} · ${route.api}`)}` +
+        (held.has(route.routeId) ? `  ${C.warn('← 不下发：DSH 不支持该协议')}` : ''),
+    );
     console.log(
       `  ${ok.length} usable` +
         (blocked ? `, ${C.warn(`${blocked} blocked`)}` : '') +
         `  ${C.dim(`(${route.models.length} total)`)}`,
     );
     for (const model of route.models) {
-      const mark = model.note ? C.bad('✕') : C.ok('✓');
-      const note = model.note ? `  ${C.warn(`（${model.note}）`)}` : '';
+      const note = availabilityNote(model);
+      const mark = note ? C.bad('✕') : C.ok('✓');
+      const star = isPick(model) ? C.warn('★ ') : '  ';
+      const suffix = note ? `  ${C.warn(`（${note}）`)}` : '';
       const ctx = model.contextWindow ? C.dim(` ctx ${Math.round(model.contextWindow / 1024)}k`) : '';
-      console.log(`    ${mark} ${model.id.padEnd(36)}${note}${ctx}`);
+      console.log(`    ${star}${mark} ${model.id.padEnd(36)}${suffix}${ctx}`);
     }
     console.log();
   }
+  console.log(C.dim('★ = 常用模型（选择器里输入 ★ 即可筛出来）'));
 }
 
 function cmdRender() {
   writePatch(loadCatalog(), PATCH_FILE);
   console.log(C.ok(`wrote ${path.relative(process.cwd(), PATCH_FILE)}`));
+}
+
+async function cmdUsage({ key: explicitKey, json }) {
+  const { key, source } = resolveKey(explicitKey);
+  if (!key) {
+    console.error(C.bad('No OpenCode credential found. Run `check` to see where we looked.'));
+    process.exit(1);
+  }
+
+  let rows;
+  try {
+    rows = await fetchUsage(key);
+  } catch (err) {
+    if (json) {
+      console.log(JSON.stringify({ ok: false, error: err.message }, null, 2));
+    } else {
+      console.error(C.bad(`读取额度失败：${err.message}`));
+    }
+    process.exitCode = 1;
+    return;
+  }
+
+  if (json) {
+    console.log(JSON.stringify({ ok: true, key: maskKey(key), windows: rows }, null, 2));
+    return;
+  }
+
+  console.log(`${C.bold('OpenCode Go 额度')}  ${C.dim(`${maskKey(key)} ← ${source}`)}\n`);
+  console.log(
+    `  ${padDisplay('窗口', 17)}` +
+      `${padStartDisplay('已用', 4)}  ` +
+      `${padDisplay('用掉', BAR_WIDTH)}   ` +
+      `${padStartDisplay('剩余', 4)}   重置`,
+  );
+  for (const row of rows) {
+    const label = `${WINDOW_LABELS[row.window] ?? row.window}`;
+    // CJK labels are two columns wide each, so pad on printable width, not
+    // string length, or every row skews by the number of wide characters.
+    const head = padDisplay(label, 9) + C.dim(String(row.window).padEnd(8));
+    if (row.usedPercent === null) {
+      console.log(`  ${head}${'—'.padStart(4)}  ${C.dim('（该窗口没有数据）'.padEnd(BAR_WIDTH))}   ${'—'.padStart(4)}   ${C.dim(formatReset(row.resetsAt))}`);
+      continue;
+    }
+    const tone = row.usedPercent >= 90 ? 'bad' : row.usedPercent >= 70 ? 'warn' : 'ok';
+    const bar = usageBar(row.usedPercent, BAR_WIDTH);
+    console.log(
+      `  ${head}` +
+        `${C[tone](padStartDisplay(`${row.usedPercent}%`, 4))}  ` +
+        `${C[tone](bar.filled)}${C.dim(bar.empty)}   ` +
+        `${padStartDisplay(`${row.remainingPercent}%`, 4)}   ` +
+        `${C.dim(formatReset(row.resetsAt))}`,
+    );
+  }
+  console.log(`\n${C.dim('「已用」是套餐消耗百分比，剩余 = 100 − 已用；窗口到期后自动重置。')}`);
 }
 
 async function cmdCheck({ key: explicitKey, json }) {
@@ -231,6 +340,8 @@ async function main() {
       return cmdRender();
     case 'check':
       return cmdCheck({ key: values.key, json: values.json });
+    case 'usage':
+      return cmdUsage({ key: values.key, json: values.json });
     case 'probe':
       return cmdProbe({
         key: values.key,

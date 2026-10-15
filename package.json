@@ -1,7 +1,7 @@
 {
   "name": "dsh-opencode-doctor",
-  "version": "0.1.0",
-  "description": "Pre-probed OpenCode Go / Zen model routes for DeepSeek Harness — ships an availability-annotated catalog so you can see which models actually work (region blocks, empty balance, client-only free tiers) before you pick one.",
+  "version": "0.2.0",
+  "description": "Pre-probed OpenCode Go / Zen model routes for DeepSeek Harness — every model is really called once, the verdict is written into its picker name, and the region-blocked ones are routed through your local proxy automatically.",
   "keywords": [
     "dsh",
     "dsh-plugin",
@@ -10,7 +10,9 @@
     "opencode-go",
     "opencode-zen",
     "pi-ai",
-    "model-provider"
+    "model-provider",
+    "region-unlock",
+    "proxy"
   ],
   "license": "MIT",
   "author": "fffcodefox",
@@ -30,6 +32,9 @@
   "bin": {
     "dsh-opencode-doctor": "./bin/doctor.mjs"
   },
+  "dependencies": {
+    "dsh-model-proxy": "github:windwhiterain/dsh-model-proxy#5d240805f6feb3c0e4e8ddd635bb10d92b43f11b"
+  },
   "files": [
     "bin",
     "lib",
@@ -42,6 +47,7 @@
   "scripts": {
     "render": "node bin/doctor.mjs render",
     "list": "node bin/doctor.mjs list",
+    "usage": "node bin/doctor.mjs usage",
     "check": "node bin/doctor.mjs check",
     "probe": "node bin/doctor.mjs probe"
   },

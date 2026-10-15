@@ -1,9 +1,15 @@
 # dsh-opencode-doctor — GENERATED FILE, do not edit by hand.
 #
-# Registers pre-probed OpenCode provider routes on @deepseek-ai/dsh-llm-pi-ai.
-# Model names carry an availability suffix because the DSH model picker renders
-# only the name (no description) — that also makes the notes searchable, so
-# typing "需充值" filters the whole group.
+# Registers pre-probed OpenCode provider routes on @deepseek-ai/dsh-llm-pi-ai,
+# and routes the region-blocked ones through an outbound proxy.
+#
+# The picker renders only the model name (no description), so an availability
+# caveat has to live inside the name to be visible — and searchable: typing
+# "需充值" filters that whole group. Models this plugin already fixed carry no
+# caveat at all: the region-blocked ones ride the proxy below.
+#
+# Starred entries are the everyday shortlist; the picker fuzzy-searches names,
+# so typing "★" narrows the list to them.
 #
 # Route ids carry a -doctor suffix and a protocol suffix on purpose:
 # dsh-opencode-go owns `opencode-go`, and registering the same id twice fails
@@ -12,7 +18,22 @@
 # Credential: refs.OPENCODE_API_KEY in .credentials.yaml (or the matching env var).
 # Re-probe and rewrite this file with:  npx dsh-opencode-doctor probe
 #
-# Probed 2026-10-15 · 49 usable / 83 total across 6 routes
+# Probed 2026-10-15 · 79 model entries registered across 6 routes
+#   67 with no caveat, 12 keeping one (需充值 / 限官方客户端)
+#   10 starred as the everyday shortlist — type ★ to filter
+#   15 region-blocked ride the proxy below (no caveat: already fixed)
+#
+# Not listed here — probed, working, but unreachable from configuration:
+#   OpenCode Zen · Gemini (google-generative-ai) — 4 models
+#   DSH only accepts openai-completions / openai-responses /
+#   anthropic-messages from a provider config, and naming any other
+#   protocol fails the whole llm-pi-ai entry. Re-run `probe` once
+#   upstream widens that table and the route reappears on its own.
+#
+# Changing the outbound proxy: the `model-proxy` row further down is a plain
+# override target — add your own `- id: model-proxy` row to the profile patch
+# and set `proxy` to whatever your local client listens on. Leaving it
+# unreachable is safe: matching models fall back to a direct connection.
 # ============================================================
 - id: llm-pi-ai
   name: "@deepseek-ai/dsh-llm-pi-ai"
@@ -27,7 +48,7 @@
           x-opencode-session: dsh-opencode-doctor
         models:
           - id: claude-haiku-5-5
-            name: Claude Haiku 5.5
+            name: "★ Claude Haiku 5.5"
             contextWindow: 1000000
             maxTokens: 128000
             reasoningEfforts:
@@ -64,7 +85,7 @@
           supportsReasoningEffort: true
         models:
           - id: cat-jam-free
-            name: "Cat Jam Free（地区限制）"
+            name: Cat Jam Free
             contextWindow: 262144
             maxTokens: 131072
             reasoningEfforts:
@@ -82,7 +103,7 @@
               medium: medium
               high: high
           - id: deepseek-v4.1-flash
-            name: DeepSeek V4.1 Flash
+            name: "★ DeepSeek V4.1 Flash"
             contextWindow: 1000000
             maxTokens: 384000
             reasoningEfforts:
@@ -118,7 +139,7 @@
               medium: medium
               high: high
           - id: glm-5.3
-            name: GLM-5.3
+            name: "★ GLM-5.3"
             contextWindow: 1000000
             maxTokens: 131072
             reasoningEfforts:
@@ -130,24 +151,6 @@
             name: GLM-5.3-Flash
             contextWindow: 1000000
             maxTokens: 131072
-            reasoningEfforts:
-              "off": null
-              low: low
-              medium: medium
-              high: high
-          - id: gpt-5.6-luna
-            name: "GPT-5.6 Luna（地区限制）"
-            contextWindow: 1050000
-            maxTokens: 128000
-            reasoningEfforts:
-              "off": null
-              low: low
-              medium: medium
-              high: high
-          - id: gpt-6-luna
-            name: "GPT-6 Luna（地区限制）"
-            contextWindow: 1050000
-            maxTokens: 128000
             reasoningEfforts:
               "off": null
               low: low
@@ -190,7 +193,7 @@
               medium: medium
               high: high
           - id: kimi-k3
-            name: Kimi K3
+            name: "★ Kimi K3"
             contextWindow: 1048576
             maxTokens: 131072
             reasoningEfforts:
@@ -262,7 +265,7 @@
               medium: medium
               high: high
           - id: minimax-m3
-            name: MiniMax-M3
+            name: "★ MiniMax-M3"
             contextWindow: 1000000
             maxTokens: 131072
             reasoningEfforts:
@@ -271,7 +274,7 @@
               medium: medium
               high: high
           - id: muse-spark-1.2-contributor
-            name: "Muse Spark 1.2 Contributor（地区限制）"
+            name: Muse Spark 1.2 Contributor
             contextWindow: 1048576
             maxTokens: 131072
             reasoningEfforts:
@@ -280,7 +283,7 @@
               medium: medium
               high: high
           - id: muse-spark-1.3-contributor
-            name: "Muse Spark 1.3 Contributor（地区限制）"
+            name: Muse Spark 1.3 Contributor
             contextWindow: 1048576
             maxTokens: 131072
             reasoningEfforts:
@@ -327,7 +330,7 @@
               medium: medium
               high: high
           - id: qwen3.8-max
-            name: Qwen3.8 Max
+            name: "★ Qwen3.8 Max"
             contextWindow: 1000000
             maxTokens: 131072
             reasoningEfforts:
@@ -345,7 +348,7 @@
               medium: medium
               high: high
           - id: step-5-preview-free
-            name: "Step 5 Preview Free（暂不可用）"
+            name: Step 5 Preview Free
             contextWindow: 1000000
             maxTokens: 65536
             reasoningEfforts:
@@ -364,6 +367,22 @@
         headers:
           x-opencode-session: dsh-opencode-doctor
         models:
+          - id: gpt-5.6-luna
+            name: GPT-5.6 Luna
+            contextWindow: 1050000
+            maxTokens: 128000
+            reasoningEfforts:
+              low: low
+              medium: medium
+              high: high
+          - id: gpt-6-luna
+            name: GPT-6 Luna
+            contextWindow: 1050000
+            maxTokens: 128000
+            reasoningEfforts:
+              low: low
+              medium: medium
+              high: high
           - id: grok-4.6
             name: Grok 4.6
             contextWindow: 500000
@@ -373,7 +392,7 @@
               medium: medium
               high: high
           - id: grok-4.7
-            name: Grok 4.7
+            name: "★ Grok 4.7"
             contextWindow: 500000
             maxTokens: 500000
             reasoningEfforts:
@@ -431,7 +450,7 @@
             compat:
               forceAdaptiveThinking: true
           - id: claude-haiku-5-5
-            name: Claude Haiku 5.5
+            name: "★ Claude Haiku 5.5"
             contextWindow: 1000000
             maxTokens: 128000
             reasoningEfforts:
@@ -457,7 +476,7 @@
             compat:
               forceAdaptiveThinking: true
           - id: claude-opus-5-5
-            name: Claude Opus 5.5
+            name: "★ Claude Opus 5.5"
             contextWindow: 1000000
             maxTokens: 128000
             reasoningEfforts:
@@ -469,8 +488,19 @@
               max: max
             compat:
               forceAdaptiveThinking: true
+          - id: claude-opus-5-5-backup
+            name: "claude-opus-5-5-backup（暂不可用）"
+            reasoningEfforts:
+              "off": null
+              low: low
+              medium: medium
+              high: high
+              xhigh: xhigh
+              max: max
+            compat:
+              forceAdaptiveThinking: true
           - id: claude-sonnet-5-5
-            name: Claude Sonnet 5.5
+            name: "★ Claude Sonnet 5.5"
             contextWindow: 1000000
             maxTokens: 128000
             reasoningEfforts:
@@ -505,16 +535,9 @@
               medium: medium
               high: high
           - id: cat-jam-free
-            name: "Cat Jam Free（地区限制）"
+            name: Cat Jam Free
             contextWindow: 262144
             maxTokens: 131072
-            reasoningEfforts:
-              "off": null
-              low: low
-              medium: medium
-              high: high
-          - id: claude-opus-5-5-backup
-            name: "claude-opus-5-5-backup（暂不可用）"
             reasoningEfforts:
               "off": null
               low: low
@@ -530,7 +553,7 @@
               medium: medium
               high: high
           - id: deepseek-v4.1-flash
-            name: DeepSeek V4.1 Flash
+            name: "★ DeepSeek V4.1 Flash"
             contextWindow: 1000000
             maxTokens: 384000
             reasoningEfforts:
@@ -547,44 +570,8 @@
               low: low
               medium: medium
               high: high
-          - id: gemini-3.1-pro
-            name: "Gemini 3.1 Pro Preview（协议不兼容）"
-            contextWindow: 1048576
-            maxTokens: 65536
-            reasoningEfforts:
-              "off": null
-              low: low
-              medium: medium
-              high: high
-          - id: gemini-3.5-flash-lite
-            name: "Gemini 3.5 Flash Lite（协议不兼容）"
-            contextWindow: 1048576
-            maxTokens: 65536
-            reasoningEfforts:
-              "off": null
-              low: low
-              medium: medium
-              high: high
-          - id: gemini-3.8-flash
-            name: "Gemini 3.8 Flash（协议不兼容）"
-            contextWindow: 1048576
-            maxTokens: 65536
-            reasoningEfforts:
-              "off": null
-              low: low
-              medium: medium
-              high: high
-          - id: gemini-4-argon
-            name: "Gemini 4 Argon（协议不兼容）"
-            contextWindow: 1048576
-            maxTokens: 65536
-            reasoningEfforts:
-              "off": null
-              low: low
-              medium: medium
-              high: high
           - id: glm-5.3
-            name: GLM-5.3
+            name: "★ GLM-5.3"
             contextWindow: 1000000
             maxTokens: 131072
             reasoningEfforts:
@@ -592,89 +579,6 @@
               low: low
               medium: medium
               high: high
-          - id: gpt-5.3-codex-spark
-            name: "GPT-5.3 Codex Spark（地区限制）"
-            contextWindow: 128000
-            maxTokens: 128000
-            reasoningEfforts:
-              "off": null
-              low: low
-              medium: medium
-              high: high
-          - id: gpt-5.4-mini
-            name: "GPT-5.4 Mini（地区限制）"
-            contextWindow: 400000
-            maxTokens: 128000
-            reasoningEfforts:
-              "off": null
-              low: low
-              medium: medium
-              high: high
-          - id: gpt-5.4-nano
-            name: "GPT-5.4 Nano（地区限制）"
-            contextWindow: 400000
-            maxTokens: 128000
-            reasoningEfforts:
-              "off": null
-              low: low
-              medium: medium
-              high: high
-          - id: gpt-5.5
-            name: "GPT-5.5（地区限制）"
-            contextWindow: 1050000
-            maxTokens: 128000
-            reasoningEfforts:
-              "off": null
-              low: low
-              medium: medium
-              high: high
-          - id: gpt-5.5-pro
-            name: "GPT-5.5 Pro（地区限制）"
-            contextWindow: 1050000
-            maxTokens: 128000
-            reasoningEfforts:
-              "off": null
-              low: low
-              medium: medium
-              high: high
-          - id: gpt-5.6-terra
-            name: "GPT-5.6 Terra（地区限制）"
-            contextWindow: 1050000
-            maxTokens: 128000
-            reasoningEfforts:
-              "off": null
-              low: low
-              medium: medium
-              high: high
-          - id: gpt-6-astra
-            name: "GPT-6 Astra（地区限制）"
-            contextWindow: 1050000
-            maxTokens: 128000
-            reasoningEfforts:
-              "off": null
-              low: low
-              medium: medium
-              high: high
-          - id: gpt-6-luna
-            name: "GPT-6 Luna（地区限制）"
-            contextWindow: 1050000
-            maxTokens: 128000
-            reasoningEfforts:
-              "off": null
-              low: low
-              medium: medium
-              high: high
-          - id: gpt-6.1-sol
-            name: "GPT-6.1 Sol（地区限制）"
-            contextWindow: 1050000
-            maxTokens: 128000
-            reasoningEfforts:
-              "off": null
-              low: low
-              medium: medium
-              high: high
-          - id: jev-1.13
-            name: "jev-1.13（协议不兼容）"
           - id: jev-1.13-free
             name: "jev-1.13-free（限官方客户端）"
           - id: kimi-k2.7-code
@@ -687,7 +591,7 @@
               medium: medium
               high: high
           - id: kimi-k3
-            name: Kimi K3
+            name: "★ Kimi K3"
             contextWindow: 1048576
             maxTokens: 131072
             reasoningEfforts:
@@ -714,7 +618,7 @@
               medium: medium
               high: high
           - id: minimax-m3
-            name: MiniMax-M3
+            name: "★ MiniMax-M3"
             contextWindow: 1000000
             maxTokens: 131072
             reasoningEfforts:
@@ -732,7 +636,7 @@
               medium: medium
               high: high
           - id: muse-spark-1.2-contributor-free
-            name: "Muse Spark 1.2 Free（地区限制）"
+            name: Muse Spark 1.2 Free
             contextWindow: 1048576
             maxTokens: 131072
             reasoningEfforts:
@@ -741,7 +645,7 @@
               medium: medium
               high: high
           - id: muse-spark-1.3-contributor-free
-            name: "Muse Spark 1.3 Free（地区限制）"
+            name: Muse Spark 1.3 Free
             contextWindow: 1048576
             maxTokens: 131072
             reasoningEfforts:
@@ -753,6 +657,15 @@
             name: "Nemotron 3.5 Lightning Free（限官方客户端）"
             contextWindow: 262144
             maxTokens: 262144
+            reasoningEfforts:
+              "off": null
+              low: low
+              medium: medium
+              high: high
+          - id: nemotron-3.5-super-vl-free
+            name: "Nemotron 3.5 Super VL Free（限官方客户端）"
+            contextWindow: 1048576
+            maxTokens: 131072
             reasoningEfforts:
               "off": null
               low: low
@@ -806,15 +719,87 @@
           x-opencode-session: dsh-opencode-doctor
         models:
           - id: gpt-5.3-codex
-            name: GPT-5.3 Codex
+            name: "★ GPT-5.3 Codex"
             contextWindow: 400000
             maxTokens: 128000
             reasoningEfforts:
               low: low
               medium: medium
               high: high
+          - id: gpt-5.3-codex-spark
+            name: GPT-5.3 Codex Spark
+            contextWindow: 128000
+            maxTokens: 128000
+            reasoningEfforts:
+              low: low
+              medium: medium
+              high: high
+          - id: gpt-5.4-mini
+            name: GPT-5.4 Mini
+            contextWindow: 400000
+            maxTokens: 128000
+            reasoningEfforts:
+              low: low
+              medium: medium
+              high: high
+          - id: gpt-5.4-nano
+            name: GPT-5.4 Nano
+            contextWindow: 400000
+            maxTokens: 128000
+            reasoningEfforts:
+              low: low
+              medium: medium
+              high: high
+          - id: gpt-5.5
+            name: GPT-5.5
+            contextWindow: 1050000
+            maxTokens: 128000
+            reasoningEfforts:
+              low: low
+              medium: medium
+              high: high
+          - id: gpt-5.5-pro
+            name: GPT-5.5 Pro
+            contextWindow: 1050000
+            maxTokens: 128000
+            reasoningEfforts:
+              low: low
+              medium: medium
+              high: high
+          - id: gpt-5.6-terra
+            name: GPT-5.6 Terra
+            contextWindow: 1050000
+            maxTokens: 128000
+            reasoningEfforts:
+              low: low
+              medium: medium
+              high: high
+          - id: gpt-6-astra
+            name: GPT-6 Astra
+            contextWindow: 1050000
+            maxTokens: 128000
+            reasoningEfforts:
+              low: low
+              medium: medium
+              high: high
+          - id: gpt-6-luna
+            name: GPT-6 Luna
+            contextWindow: 1050000
+            maxTokens: 128000
+            reasoningEfforts:
+              low: low
+              medium: medium
+              high: high
+          - id: gpt-6.1-sol
+            name: GPT-6.1 Sol
+            contextWindow: 1050000
+            maxTokens: 128000
+            reasoningEfforts:
+              low: low
+              medium: medium
+              high: high
           - id: grok-4.7
-            name: Grok 4.7
+            name: "★ Grok 4.7"
             contextWindow: 500000
             maxTokens: 500000
             reasoningEfforts:
@@ -840,3 +825,31 @@
         retryPolicy:
           mode: normal
           maxRetries: 5
+- insert:
+    - id: model-proxy
+      name: dsh-model-proxy
+      config:
+        enabled: true
+        proxy: "http://127.0.0.1:7897"
+        origins:
+          - opencode.ai
+        models:
+          - cat-jam-free
+          - gpt-5.3-codex-spark
+          - gpt-5.4-mini
+          - gpt-5.4-nano
+          - gpt-5.5
+          - gpt-5.5-pro
+          - gpt-5.6-luna
+          - gpt-5.6-terra
+          - gpt-6-astra
+          - gpt-6-luna
+          - gpt-6.1-sol
+          - muse-spark-1.2-contributor
+          - muse-spark-1.2-contributor-free
+          - muse-spark-1.3-contributor
+          - muse-spark-1.3-contributor-free
+        fallbackToDirect: true
+        probeTimeoutMs: 300
+        probeCacheMs: 2000
+        peekBytes: 16384
