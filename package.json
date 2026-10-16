@@ -1,7 +1,7 @@
 {
   "name": "dsh-opencode-doctor",
-  "version": "0.2.0",
-  "description": "Pre-probed OpenCode Go / Zen model routes for DeepSeek Harness — every model is really called once, the verdict is written into its picker name, and the region-blocked ones are routed through your local proxy automatically.",
+  "version": "0.2.2",
+  "description": "Pre-probed OpenCode Go / Zen model routes for DeepSeek Harness — every model is really called once, the verdict is written into its picker name, the region-blocked ones are routed through your local proxy automatically, and the official dsh-opencode-go companion comes with it.",
   "keywords": [
     "dsh",
     "dsh-plugin",
@@ -33,7 +33,8 @@
     "dsh-opencode-doctor": "./bin/doctor.mjs"
   },
   "dependencies": {
-    "dsh-model-proxy": "github:windwhiterain/dsh-model-proxy#5d240805f6feb3c0e4e8ddd635bb10d92b43f11b"
+    "dsh-model-proxy": "github:windwhiterain/dsh-model-proxy#5d240805f6feb3c0e4e8ddd635bb10d92b43f11b",
+    "dsh-opencode-go": "^0.1.22"
   },
   "files": [
     "bin",

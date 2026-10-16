@@ -1,7 +1,8 @@
 # dsh-opencode-doctor — GENERATED FILE, do not edit by hand.
 #
 # Registers pre-probed OpenCode provider routes on @deepseek-ai/dsh-llm-pi-ai,
-# and routes the region-blocked ones through an outbound proxy.
+# activates the official dsh-opencode-go companion, and routes the
+# region-blocked models through an outbound proxy.
 #
 # The picker renders only the model name (no description), so an availability
 # caveat has to live inside the name to be visible — and searchable: typing
@@ -12,8 +13,8 @@
 # so typing "★" narrows the list to them.
 #
 # Route ids carry a -doctor suffix and a protocol suffix on purpose:
-# dsh-opencode-go owns `opencode-go`, and registering the same id twice fails
-# the whole composition.
+# dsh-opencode-go registers the *provider route* `opencode-go` on the same
+# entry, and declaring one provider id twice fails the whole llm-pi-ai config.
 #
 # Credential: refs.OPENCODE_API_KEY in .credentials.yaml (or the matching env var).
 # Re-probe and rewrite this file with:  npx dsh-opencode-doctor probe
@@ -30,17 +31,38 @@
 #   protocol fails the whole llm-pi-ai entry. Re-run `probe` once
 #   upstream widens that table and the route reappears on its own.
 #
-# Changing the outbound proxy: the `model-proxy` row further down is a plain
-# override target — add your own `- id: model-proxy` row to the profile patch
-# and set `proxy` to whatever your local client listens on. Leaving it
-# unreachable is safe: matching models fall back to a direct connection.
+# The `llm-pi-ai` row above REPLACES that entry's whole `config` object — DSH
+# patches assign the value, they do not deep-merge it. A `- id: llm-pi-ai` row
+# of your own in the profile patch (or `$DSH_HOME/cordis.patch.yml`) is applied
+# AFTER this layer, so it would drop every route below. Providers you add from
+# the web Models page do not: those live in the settings document, which
+# deep-merges per `providers.<id>`. Run `npx dsh-opencode-doctor check` to have
+# this file's conflicts reported instead of guessed at.
 #
-# One row, not two: the row below is the only one this plugin relies on. If
+# Outbound proxy: currently http://127.0.0.1:7897.
+# Rewrite it with   npx dsh-opencode-doctor render --proxy http://127.0.0.1:7890
+# (or set OPENCODE_DOCTOR_PROXY); leave it unreachable and matching models
+# fall back to a direct connection, so a wrong port degrades, never breaks.
+# To pin it at boot instead, add your own `- id: model-proxy` row to the
+# profile patch — the whole `config` object is replaced, so copy `origins`
+# and `models` along with the `proxy` line you change.
+#
+# One row, not two: this plugin already inserts `model-proxy`. If
 # `dsh-model-proxy` is ALSO listed in your profile's dsh.profile.bundles, its
 # own bundled patch inserts a second row (default 127.0.0.1:7890, models
 # grok-* and gpt-*-luna) — two rows chain two dispatchers rather than
 # overriding, so drop it from that list. As a plain dependency of this plugin
 # it stays installed and resolvable, which is the intended shape.
+#
+# dsh-opencode-go is likewise inserted, not listed: it is a dependency of this
+# plugin, so it is always installed and resolvable, and the row below is what
+# makes it run. Nothing to add to dsh.profile.bundles. To turn it off, add
+#   - id: opencode-go
+#     disabled: true
+# to the profile patch. Both plugins may run at once — their route ids differ —
+# at the cost of showing the same models twice in the picker; hide the
+# official set with the companion's own `modelVisibility` if you want only the
+# annotated ones.
 # ============================================================
 - id: llm-pi-ai
   name: "@deepseek-ai/dsh-llm-pi-ai"
@@ -833,6 +855,8 @@
           mode: normal
           maxRetries: 5
 - insert:
+    - id: opencode-go
+      name: dsh-opencode-go
     - id: model-proxy
       name: dsh-model-proxy
       config:

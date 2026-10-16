@@ -14,12 +14,17 @@ import { parseArgs } from 'node:util';
 import { resolveKey, maskKey, dshHome, SEARCHED } from '../lib/keys.mjs';
 import {
   writePatch,
+  renderPatch,
+  readProxyFromPatch,
+  resolveProxy,
+  PROXY_ENV,
   availabilityNote,
   isUnreachable,
   isPick,
   regionModelIds,
   unshippableRoutes,
 } from '../lib/render.mjs';
+import { findCompositionConflicts } from '../lib/compose.mjs';
 import { probe, readCatalog, summarize, fetchModelIds, BASES, NOTES } from '../lib/probe.mjs';
 import {
   fetchUsage,
@@ -68,13 +73,15 @@ ${C.bold('Commands')}
   usage               Show the OpenCode Go quota — used / remaining per window
   probe               Re-probe both gateways, rewrite catalog + patch
   render              Rewrite cordis.patch.yml from the catalog (offline)
-  check               Resolve the credential and ping each gateway
+  check               Resolve the credential, ping each gateway, report conflicts
 
 ${C.bold('Options')}
   --key <key>         OpenCode API key (default: env → .credentials.yaml → auth.json)
   --gateway <key>     probe only one gateway (${GATEWAY_KEYS.join(', ')})
   --concurrency <n>   parallel probes during \`probe\` (default 4)
   --timeout <ms>      per-request timeout (default 60000)
+  --proxy <url>       outbound proxy for region-blocked models, used by
+                      \`probe\` and \`render\` (default ${PROXY_ENV} → ${resolveProxy()})
   --json              machine-readable output for \`list\` / \`check\` / \`usage\`
   -h, --help          Show this help
   -v, --version       Show the version
@@ -153,9 +160,10 @@ function cmdList(catalog, { json }) {
   console.log(C.dim('★ = 常用模型（选择器里输入 ★ 即可筛出来）'));
 }
 
-function cmdRender() {
-  writePatch(loadCatalog(), PATCH_FILE);
-  console.log(C.ok(`wrote ${path.relative(process.cwd(), PATCH_FILE)}`));
+function cmdRender({ proxy }) {
+  const { file, proxy: url } = writePatch(loadCatalog(), PATCH_FILE, { proxy });
+  console.log(C.ok(`wrote ${path.relative(process.cwd(), file)}`));
+  console.log(`${C.dim('proxy')}  ${url}`);
 }
 
 async function cmdUsage({ key: explicitKey, json }) {
@@ -212,11 +220,50 @@ async function cmdUsage({ key: explicitKey, json }) {
   console.log(`\n${C.dim('「已用」是套餐消耗百分比，剩余 = 100 − 已用；窗口到期后自动重置。')}`);
 }
 
+/**
+ * Local, credential-free part of `check`: the patch file this package ships,
+ * the proxy it carries, and every composition conflict that would silently
+ * change what boots. Reported before the network work so a broken composition
+ * is visible even when the key is missing.
+ */
+function compositionReport() {
+  const shipped = fs.existsSync(PATCH_FILE) ? readProxyFromPatch(fs.readFileSync(PATCH_FILE, 'utf8')) : null;
+  return { shippedProxy: shipped, conflicts: findCompositionConflicts(dshHome()) };
+}
+
+function printComposition({ shippedProxy, conflicts }, json) {
+  if (json) return;
+  console.log(
+    `${C.bold('patch')}  ${path.relative(process.cwd(), PATCH_FILE)}` +
+      `${shippedProxy ? `  ${C.dim(`proxy ${shippedProxy}`)}` : ''}`,
+  );
+  if (!conflicts.length) {
+    console.log(`  ${C.ok('✓')} no composition conflict found\n`);
+    return;
+  }
+  for (const finding of conflicts) {
+    const mark = finding.level === 'info' ? C.dim('i') : C.warn('!');
+    console.log(`  ${mark} ${finding.where}`);
+    console.log(`      ${finding.message}`);
+    console.log(`      ${C.dim(`→ ${finding.fix}`)}`);
+  }
+  console.log();
+}
+
 async function cmdCheck({ key: explicitKey, json }) {
+  const composition = compositionReport();
+  printComposition(composition, json);
+
   const { key, source } = resolveKey(explicitKey);
   if (!key) {
     if (json) {
-      console.log(JSON.stringify({ credential: { found: false, searched: SEARCHED }, gateways: [] }, null, 2));
+      console.log(
+        JSON.stringify(
+          { composition, credential: { found: false, searched: SEARCHED }, gateways: [] },
+          null,
+          2,
+        ),
+      );
     } else {
       console.log(C.bad('No OpenCode credential found.'));
       console.log(`\nSearched:\n  env ${SEARCHED.ENV_NAMES.join(', ')}`);
@@ -248,12 +295,18 @@ async function cmdCheck({ key: explicitKey, json }) {
   }
 
   if (json) {
-    console.log(JSON.stringify({ credential: { found: true, source, key: maskKey(key) }, gateways: rows }, null, 2));
+    console.log(
+      JSON.stringify(
+        { composition, credential: { found: true, source, key: maskKey(key) }, gateways: rows },
+        null,
+        2,
+      ),
+    );
   }
   if (rows.some((r) => !r.ok)) process.exitCode = 1;
 }
 
-async function cmdProbe({ key: explicitKey, gateway, concurrency, timeout }) {
+async function cmdProbe({ key: explicitKey, gateway, concurrency, timeout, proxy }) {
   const { key, source } = resolveKey(explicitKey);
   if (!key) {
     console.error(C.bad('No OpenCode credential found. Run `check` to see where we looked.'));
@@ -297,7 +350,7 @@ async function cmdProbe({ key: explicitKey, gateway, concurrency, timeout }) {
   );
 
   fs.writeFileSync(CATALOG_FILE, `${JSON.stringify(merged, null, 2)}\n`, 'utf8');
-  writePatch(merged, PATCH_FILE);
+  writePatch(merged, PATCH_FILE, { proxy });
 
   console.log();
   for (const row of summarize(merged)) {
@@ -307,6 +360,7 @@ async function cmdProbe({ key: explicitKey, gateway, concurrency, timeout }) {
     );
   }
   console.log(`\n${C.ok('updated')} models.catalog.json + cordis.patch.yml`);
+  console.log(`${C.dim('proxy')}  ${resolveProxy(proxy)}`);
 }
 
 async function main() {
@@ -317,6 +371,7 @@ async function main() {
       gateway: { type: 'string' },
       concurrency: { type: 'string' },
       timeout: { type: 'string' },
+      proxy: { type: 'string' },
       json: { type: 'boolean', default: false },
       help: { type: 'boolean', short: 'h', default: false },
       version: { type: 'boolean', short: 'v', default: false },
@@ -337,7 +392,7 @@ async function main() {
     case 'list':
       return cmdList(loadCatalog(), values);
     case 'render':
-      return cmdRender();
+      return cmdRender({ proxy: values.proxy });
     case 'check':
       return cmdCheck({ key: values.key, json: values.json });
     case 'usage':
@@ -348,6 +403,7 @@ async function main() {
         gateway: values.gateway,
         concurrency: Number(values.concurrency) || 4,
         timeout: Number(values.timeout) || 60000,
+        proxy: values.proxy,
       });
     default:
       console.error(C.bad(`Unknown command: ${command}\n`));
